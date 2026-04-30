@@ -30,6 +30,8 @@ export default function POS({ branchId }: { branchId: string }) {
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '' });
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
+  const [redeemedPoints, setRedeemedPoints] = useState(0);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   useEffect(() => {
     setCustomersList(customers.filter(c => c.branchId === branchId));
@@ -56,7 +58,7 @@ export default function POS({ branchId }: { branchId: string }) {
     return 0;
   };
 
-  const total = subtotal - calculateDiscount();
+  const total = Math.max(0, subtotal - calculateDiscount() - redeemedPoints);
 
   const handleCustomerSelect = (customer: any) => {
     setSelectedCustomer(customer);
@@ -68,12 +70,7 @@ export default function POS({ branchId }: { branchId: string }) {
     c.phone.includes(customerSearch)
   );
 
-  const handleCompletePayment = async () => {
-    if (!selectedPaymentMethod) {
-      alert('Please select a payment method');
-      return;
-    }
-
+  const finalizePayment = async () => {
     // Trigger Automation
     if (selectedCustomer) {
       try {
@@ -85,12 +82,12 @@ export default function POS({ branchId }: { branchId: string }) {
             customer: selectedCustomer
           })
         });
-        console.log('Automation triggered for', selectedCustomer.name);
       } catch (e) {
         console.error('Failed to trigger automation:', e);
       }
     }
 
+    setShowQRModal(false);
     setShowSuccess(true);
     setTimeout(() => {
       setShowSuccess(false);
@@ -99,8 +96,22 @@ export default function POS({ branchId }: { branchId: string }) {
       setSelectedCustomer(null);
       setDiscountType('none');
       setDiscountValue(0);
+      setRedeemedPoints(0);
       setSelectedPaymentMethod(null);
     }, 3000);
+  };
+
+  const handleCompletePayment = () => {
+    if (!selectedPaymentMethod) {
+      alert('Please select a payment method');
+      return;
+    }
+
+    if (selectedPaymentMethod === 'UPI') {
+      setShowQRModal(true);
+    } else {
+      finalizePayment();
+    }
   };
 
   return (
@@ -306,6 +317,28 @@ export default function POS({ branchId }: { branchId: string }) {
               )}
             </div>
 
+            {/* Points Redemption */}
+            {selectedCustomer && selectedCustomer.points > 0 && (
+              <div className="space-y-2 pt-2 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted">Redeem Points (Available: {selectedCustomer.points})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    placeholder="0"
+                    max={selectedCustomer.points}
+                    value={redeemedPoints || ''}
+                    onChange={(e) => setRedeemedPoints(Math.min(Number(e.target.value), selectedCustomer.points))}
+                    className="flex-1 bg-background border border-border rounded-lg py-1.5 px-3 text-sm focus:outline-none focus:border-accent/50"
+                  />
+                  {redeemedPoints > 0 && (
+                    <span className="text-xs font-bold text-red-500">-₹{redeemedPoints}</span>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between text-xl font-bold pt-2 border-t border-border">
               <span>Total</span>
               <span className="text-accent">₹{total}</span>
@@ -383,6 +416,54 @@ export default function POS({ branchId }: { branchId: string }) {
                 >
                   Cancel
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* QR Code Modal */}
+      <AnimatePresence>
+        {showQRModal && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-sm glass rounded-[2.5rem] p-8 space-y-8 flex flex-col items-center"
+            >
+              <div className="text-center">
+                <h3 className="text-2xl font-bold mb-2">Scan to Pay</h3>
+                <p className="text-muted">Pay ₹{total} via UPI</p>
+              </div>
+
+              {/* QR Code Placeholder Box */}
+              <div className="w-48 h-48 bg-white rounded-2xl p-4 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 border-4 border-accent/50 rounded-2xl animate-pulse pointer-events-none"></div>
+                <QrCode size={120} className="text-black" />
+              </div>
+
+              <div className="w-full space-y-4">
+                <motion.button 
+                  whileTap={{ scale: 0.95 }}
+                  onClick={finalizePayment}
+                  className="w-full bg-green-500 text-white py-4 rounded-2xl font-bold text-lg hover:opacity-90 transition-all shadow-lg shadow-green-500/20"
+                >
+                  Payment Done
+                </motion.button>
+                <motion.button 
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowQRModal(false)}
+                  className="w-full py-4 rounded-2xl font-bold text-muted hover:text-white transition-all"
+                >
+                  Cancel
+                </motion.button>
               </div>
             </motion.div>
           </div>

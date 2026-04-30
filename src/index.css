@@ -4,8 +4,8 @@
   --color-background: var(--bg);
   --color-surface: var(--surface);
   --color-surface-hover: var(--surface-hover);
-  --color-accent: #d4ff33; /* Neon Lime remains constant */
-  --color-accent-foreground: #000000;
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-text: var(--text);
@@ -19,15 +19,21 @@
     --muted: #888888;
     --border: #262626;
     --text: #ffffff;
+    --card-text: #ffffff;
+    --accent: #d4ff33;
+    --accent-foreground: #000000;
   }
 
   .light {
-    --bg: #f8fafc;
-    --surface: #ffffff;
-    --surface-hover: #f1f5f9;
-    --muted: #64748b;
-    --border: #e2e8f0;
-    --text: #0f172a;
+    --bg: #ffffff;
+    --surface: #000000;
+    --surface-hover: #111111;
+    --muted: #888888;
+    --border: #222222;
+    --text: #000000;
+    --card-text: #ffffff;
+    --accent: #ff3333;
+    --accent-foreground: #ffffff;
   }
 
   body {
@@ -37,7 +43,7 @@
 }
 
 .glass {
-  @apply bg-surface/80 backdrop-blur-md border border-border shadow-sm;
+  @apply bg-surface/90 text-[color:var(--card-text)] backdrop-blur-md border border-border shadow-sm;
 }
 
 .card-hover {

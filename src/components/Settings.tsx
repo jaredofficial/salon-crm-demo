@@ -2,18 +2,32 @@ import React, { useState } from 'react';
 import { 
   Target, 
   QrCode, 
-  Save
+  Save,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function Settings() {
   const [salonSettings, setSalonSettings] = useState({
     revenueGoal: '500000',
-    upiId: 'salon@upi',
+    upiId: 'roy.rahul11101@okhdfcbank',
     salonName: 'Aion Salon & Spa',
     loyaltyPointsPerRupee: '1',
     defaultMessageCap: '5'
   });
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSave = () => {
+    setIsSaving(true);
+    setTimeout(() => {
+      setIsSaving(false);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 2000);
+    }, 800);
+  };
 
   return (
     <motion.div 
@@ -27,10 +41,23 @@ export default function Settings() {
           <h1 className="text-3xl font-bold">Settings</h1>
           <p className="text-muted">Manage your salon configuration</p>
         </div>
-        <button className="bg-accent text-accent-foreground px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-accent/20">
-          <Save size={18} />
-          Save Changes
-        </button>
+        <motion.button 
+          whileTap={{ scale: 0.95 }}
+          onClick={handleSave}
+          disabled={isSaving}
+          className={`px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg ${
+            isSaved ? 'bg-green-500 text-white shadow-green-500/20' : 'bg-accent text-accent-foreground shadow-accent/20 hover:opacity-90'
+          }`}
+        >
+          {isSaving ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : isSaved ? (
+            <CheckCircle2 size={18} />
+          ) : (
+            <Save size={18} />
+          )}
+          {isSaving ? 'Saving...' : isSaved ? 'Saved!' : 'Save Changes'}
+        </motion.button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

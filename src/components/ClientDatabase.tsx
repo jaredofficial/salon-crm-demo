@@ -236,16 +236,20 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
             </div>
 
             <div className="p-6 bg-surface/50 border-t border-border mt-auto flex gap-3">
-              <button 
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
                 onClick={() => simulateVisit(selectedClient.name)}
                 className="flex-1 bg-accent/10 text-accent border border-accent/30 py-4 rounded-2xl font-bold hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
               >
                 <CheckCircle2 size={18} />
                 Complete Visit
-              </button>
-              <button className="flex-[2] bg-accent text-black py-4 rounded-2xl font-bold hover:opacity-90 transition-all">
+              </motion.button>
+              <motion.button 
+                whileTap={{ scale: 0.95 }}
+                className="flex-[2] bg-accent text-accent-foreground py-4 rounded-2xl font-bold hover:opacity-90 transition-all shadow-lg shadow-accent/20"
+              >
                 Book Appointment
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         ) : (

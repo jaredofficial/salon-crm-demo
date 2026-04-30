@@ -121,14 +121,16 @@ export default function App() {
       <motion.aside 
         initial={false}
         animate={{ width: isSidebarCollapsed ? 80 : 260 }}
-        className="border-r border-border flex flex-col py-8 px-4 relative transition-all duration-300 ease-in-out"
+        transition={{ ease: [0.22, 1, 0.36, 1], duration: 0.6 }}
+        className="border-r border-border flex flex-col py-8 px-4 relative z-50 bg-surface/50 backdrop-blur-md"
       >
-        <button 
+        <motion.button 
+          whileTap={{ scale: 0.9 }}
           onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          className="absolute -right-3 top-10 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-black shadow-lg z-50 hover:scale-110 transition-transform"
+          className="absolute -right-3 top-10 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-accent-foreground shadow-lg z-50 hover:scale-110 transition-transform"
         >
           {isSidebarCollapsed ? <Menu size={14} /> : <ChevronLeft size={14} />}
-        </button>
+        </motion.button>
 
         <div className={`flex items-center gap-3 px-4 mb-12 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
           <div className="w-10 h-10 bg-accent rounded-xl flex-shrink-0 flex items-center justify-center">
@@ -147,32 +149,34 @@ export default function App() {
 
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               key={item.id}
               onClick={() => setActiveTab(item.id as Tab)}
               className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all duration-200 ${
                 activeTab === item.id 
-                  ? 'bg-accent text-black font-semibold' 
-                  : 'text-muted hover:bg-surface hover:text-text'
+                  ? 'bg-accent text-accent-foreground font-semibold' 
+                  : 'text-muted hover:bg-surface hover:text-[color:var(--card-text)]'
               } ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
               title={isSidebarCollapsed ? item.label : ''}
             >
               <item.icon size={24} className="flex-shrink-0" />
               {!isSidebarCollapsed && <span>{item.label}</span>}
-            </button>
+            </motion.button>
           ))}
         </nav>
 
         <div className="mt-auto pt-8 border-t border-border">
-          <button 
+          <motion.button 
+            whileTap={{ scale: 0.95 }}
             onClick={handleLogout}
             className={`w-full flex items-center gap-4 p-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
           >
             <LogOut size={24} className="flex-shrink-0" />
             {!isSidebarCollapsed && <span className="font-bold">Logout</span>}
-          </button>
+          </motion.button>
           <div className={`mt-6 flex items-center gap-3 px-2 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-accent text-black flex items-center justify-center font-bold flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-bold flex-shrink-0">
               {currentUser?.name[0]}
             </div>
             {!isSidebarCollapsed && (
@@ -324,12 +328,13 @@ export default function App() {
                 <UserCircle size={24} />
               </div>
             </div>
-            <button 
+            <motion.button 
+              whileTap={{ scale: 0.9 }}
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="p-2 rounded-full hover:bg-surface text-muted relative transition-colors"
             >
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
+            </motion.button>
           </div>
         </header>
 
