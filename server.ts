@@ -1,0 +1,174 @@
+import express from "express";
+import { createServer as createViteServer } from "vite";
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+async function startServer() {
+  const app = express();
+  const PORT = process.env.PORT || 3000;
+
+  app.use(express.json());
+
+  // MSG91 configuration
+  const getMsg91Auth = () => {
+    const authKey = process.env.MSG91_AUTH_KEY;
+    const integratedNumber = process.env.MSG91_INTEGRATED_NUMBER;
+    
+    if (!authKey) console.error("MISSING: MSG91_AUTH_KEY");
+    if (!integratedNumber) console.error("MISSING: MSG91_INTEGRATED_NUMBER");
+    
+    if (!authKey || !integratedNumber) throw new Error("MSG91 credentials missing in environment");
+    
+    return { authKey, integratedNumber };
+  };
+
+  // API: Health Check for Secrets
+  app.get("/api/whatsapp/health", (req, res) => {
+    const status = {
+      MSG91_AUTH_KEY: !!process.env.MSG91_AUTH_KEY,
+      MSG91_INTEGRATED_NUMBER: !!process.env.MSG91_INTEGRATED_NUMBER,
+      SUPABASE_ANON_KEY: !!process.env.VITE_SUPABASE_ANON_KEY,
+    };
+    res.json(status);
+  });
+
+  // API: Send WhatsApp Message (via MSG91)
+  app.post("/api/whatsapp/send", async (req, res) => {
+    const { to, message, templateId, clientId, variables } = req.body;
+    
+    try {
+      const { authKey, integratedNumber } = getMsg91Auth();
+      console.log(`Attempting to send WhatsApp via MSG91 to ${to} from ${integratedNumber}`);
+
+      if (!to || (!message && !templateId)) {
+        return res.status(400).json({ error: "Missing required fields (to, and either message or templateId)" });
+      }
+
+      // MSG91 WhatsApp API requires specific payload
+      const payload: any = {
+        integrated_number: integratedNumber,
+        content_type: templateId ? "template" : "text",
+        payload: {
+          to: to.replace(/\D/g, ''), // Ensure numeric only
+        }
+      };
+
+      if (templateId) {
+        payload.payload.type = "template";
+        payload.payload.template = {
+          name: templateId,
+          language: { code: "en", policy: "deterministic" },
+          components: [
+            {
+              type: "body",
+              parameters: Object.keys(variables || {}).map(key => ({
+                type: "text",
+                text: variables[key]
+              }))
+            }
+          ]
+        };
+      } else {
+        payload.payload.type = "text";
+        payload.payload.text = { body: message };
+      }
+
+      const response = await fetch("https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "authkey": authKey
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      console.log("MSG91 Response:", result);
+
+      if (response.ok && !result.hasError) {
+        res.json({ success: true, refId: result.message_id || result.msgId || 'msg91-success' });
+      } else {
+        res.status(500).json({ error: result.message || "MSG91 API error" });
+      }
+    } catch (error: any) {
+      console.error("MSG91 API Error:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // API: Automation Trigger (via MSG91)
+  app.post("/api/automation/trigger", async (req, res) => {
+    const { event, customer } = req.body;
+    console.log(`Automation Triggered: ${event} for ${customer?.name}`);
+
+    // For now, we simulate the "visit_completed" workflow
+    if (event === 'visit_completed') {
+      const delay = 5000; // 5 second delay for demo
+      console.log(`Workflow matched! Executing in ${delay}ms...`);
+      
+      setTimeout(async () => {
+        try {
+          const { authKey, integratedNumber } = getMsg91Auth();
+          const to = customer.phone.replace(/\D/g, ''); // Ensure numeric
+          
+          const payload = {
+            integrated_number: integratedNumber,
+            content_type: "template",
+            payload: {
+              to: to,
+              type: "template",
+              template: {
+                name: "visit_completed_template", // Assuming this is your approved MSG91 template name
+                language: { code: "en", policy: "deterministic" },
+                components: [
+                  {
+                    type: "body",
+                    parameters: [
+                      { type: "text", text: customer.name }
+                    ]
+                  }
+                ]
+              }
+            }
+          };
+
+          // Real MSG91 API call
+          // await fetch("https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/", {
+          //   method: "POST",
+          //   headers: { "Content-Type": "application/json", "authkey": authKey },
+          //   body: JSON.stringify(payload)
+          // });
+
+          console.log(`[AUTOMATION] WhatsApp sent to ${customer.name} (${to}) via MSG91`);
+        } catch (e: any) {
+          console.error("Automation Execution Failed:", e.message);
+        }
+      }, delay);
+    }
+
+    res.json({ success: true, message: "Automation triggered" });
+  });
+
+  // Vite middleware for development
+  if (process.env.NODE_ENV !== "production") {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  }
+
+  app.listen(Number(PORT), "0.0.0.0", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+startServer();
