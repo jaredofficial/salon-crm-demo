@@ -1,24 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0a0a0a;
-  --color-surface: #141414;
-  --color-surface-hover: #1c1c1c;
-  --color-accent: #d4ff33; /* Neon Lime */
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-accent: #d4ff33; /* Neon Lime remains constant */
   --color-accent-foreground: #000000;
-  --color-muted: #888888;
-  --color-border: #262626;
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-text: var(--text);
 }
 
 @layer base {
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface-hover: #1c1c1c;
+    --muted: #888888;
+    --border: #262626;
+    --text: #ffffff;
+  }
+
+  .light {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-hover: #f1f5f9;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --text: #0f172a;
+  }
+
   body {
-    @apply bg-background text-white antialiased;
+    @apply bg-background text-text antialiased transition-colors duration-500;
     font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
 .glass {
-  @apply bg-surface/80 backdrop-blur-md border border-border;
+  @apply bg-surface/80 backdrop-blur-md border border-border shadow-sm;
 }
 
 .card-hover {

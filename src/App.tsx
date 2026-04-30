@@ -14,7 +14,9 @@ import {
   User as UserIcon,
   Sparkles,
   MapPin,
-  ChevronDown
+  ChevronDown,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { customers, services, staffMembers } from './data/mockData';
@@ -38,6 +40,15 @@ export default function App() {
   const [searchSelectedIndex, setSearchSelectedIndex] = useState(-1);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [isBranchMenuOpen, setIsBranchMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+  }, [theme]);
 
   useEffect(() => {
     if (currentUser) {
@@ -142,7 +153,7 @@ export default function App() {
               className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all duration-200 ${
                 activeTab === item.id 
                   ? 'bg-accent text-black font-semibold' 
-                  : 'text-muted hover:bg-surface hover:text-white'
+                  : 'text-muted hover:bg-surface hover:text-text'
               } ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
               title={isSidebarCollapsed ? item.label : ''}
             >
@@ -313,9 +324,11 @@ export default function App() {
                 <UserCircle size={24} />
               </div>
             </div>
-            <button className="p-2 rounded-full hover:bg-surface text-muted relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full border-2 border-background"></span>
+            <button 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-full hover:bg-surface text-muted relative transition-colors"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
           </div>
         </header>
@@ -325,10 +338,10 @@ export default function App() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -20, filter: 'blur(4px)' }}
+              transition={{ ease: [0.22, 1, 0.36, 1], duration: 0.6 }}
               className="h-full"
             >
               {activeTab === 'dashboard' && <Dashboard onNavigate={setActiveTab} branchId={selectedBranchId} userRole={currentUser?.role} userName={currentUser?.name} />}

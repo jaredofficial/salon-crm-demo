@@ -104,9 +104,14 @@ export default function POS({ branchId }: { branchId: string }) {
   };
 
   return (
-    <div className="h-full flex gap-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ ease: [0.22, 1, 0.36, 1], duration: 0.6 }}
+      className="h-full flex gap-8 pb-8"
+    >
       {/* Services Grid */}
-      <div className="flex-1 space-y-6">
+      <div className="flex-1 space-y-8">
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             {categories.map(cat => (
@@ -130,7 +135,7 @@ export default function POS({ branchId }: { branchId: string }) {
               value={serviceSearch}
               onChange={(e) => setServiceSearch(e.target.value)}
               placeholder="Search services..." 
-              className="w-full bg-surface border border-border rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-accent/50"
+              className="w-full bg-surface/50 border border-border rounded-xl py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-accent/50 transition-all"
             />
           </div>
         </div>
@@ -145,7 +150,7 @@ export default function POS({ branchId }: { branchId: string }) {
                 whileTap={{ scale: 0.98 }}
                 key={service.id}
                 onClick={() => addToCart(service)}
-                className="glass p-6 rounded-3xl text-left hover:border-accent/30 transition-all group"
+                className="glass p-6 rounded-[2rem] text-left hover:border-accent/30 hover:shadow-xl transition-all duration-300 group"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-3 bg-surface rounded-2xl text-accent group-hover:bg-accent group-hover:text-black transition-all">
@@ -161,7 +166,7 @@ export default function POS({ branchId }: { branchId: string }) {
       </div>
 
       {/* Cart Sidebar */}
-      <div className="w-96 glass rounded-3xl flex flex-col overflow-hidden border-l border-border">
+      <div className="w-[400px] glass rounded-[2.5rem] flex flex-col overflow-hidden shadow-2xl">
         <div className="p-6 border-b border-border">
           <h3 className="text-xl font-bold mb-4">Current Order</h3>
           
@@ -309,7 +314,7 @@ export default function POS({ branchId }: { branchId: string }) {
           <button 
             disabled={cart.length === 0}
             onClick={() => setIsCheckoutOpen(true)}
-            className="w-full bg-accent text-black py-4 rounded-2xl font-bold text-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-accent text-accent-foreground py-4 rounded-2xl font-bold text-lg hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent/20"
           >
             Checkout
           </button>
@@ -476,7 +481,7 @@ export default function POS({ branchId }: { branchId: string }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 

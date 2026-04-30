@@ -31,7 +31,12 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full relative">
+    <motion.div 
+      initial={{ opacity: 0, y: 20, filter: 'blur(4px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ ease: [0.22, 1, 0.36, 1], duration: 0.6 }}
+      className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full relative pb-8"
+    >
       {/* Demo Toast */}
       <AnimatePresence>
         {showDemoToast && (
@@ -89,7 +94,7 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
           </div>
         </div>
 
-        <div className="glass rounded-3xl overflow-hidden">
+        <div className="glass rounded-[2rem] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-surface/50 text-muted text-xs uppercase tracking-widest">
@@ -145,15 +150,15 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
       </div>
 
       {/* Client Detail Sidebar */}
-      <div className="glass rounded-3xl flex flex-col overflow-hidden max-h-[calc(100vh-10rem)]">
+      <div className="glass rounded-[2rem] flex flex-col overflow-y-auto custom-scrollbar max-h-[calc(100vh-8rem)]">
         {selectedClient ? (
           <motion.div 
             key={selectedClient.id}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex flex-col h-full"
+            className="flex flex-col min-h-full"
           >
-            <div className="p-8 text-center border-b border-border shrink-0">
+            <div className="p-8 text-center border-b border-border">
               <div className="w-24 h-24 rounded-full bg-accent mx-auto flex items-center justify-center text-black text-3xl font-bold mb-4 shadow-lg shadow-accent/20">
                 {selectedClient.name.split(' ').map((n: string) => n[0]).join('')}
               </div>
@@ -178,7 +183,7 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+            <div className="p-6 space-y-8 flex-1">
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-surface p-4 rounded-2xl border border-border">
@@ -230,7 +235,7 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
               </div>
             </div>
 
-            <div className="p-6 bg-surface border-t border-border shrink-0 flex gap-3">
+            <div className="p-6 bg-surface/50 border-t border-border mt-auto flex gap-3">
               <button 
                 onClick={() => simulateVisit(selectedClient.name)}
                 className="flex-1 bg-accent/10 text-accent border border-accent/30 py-4 rounded-2xl font-bold hover:bg-accent/20 transition-all flex items-center justify-center gap-2"
@@ -255,7 +260,7 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
