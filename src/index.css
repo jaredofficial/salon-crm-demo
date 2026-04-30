@@ -25,13 +25,13 @@
   }
 
   .light {
-    --bg: #ffffff;
-    --surface: #000000;
-    --surface-hover: #111111;
-    --muted: #888888;
-    --border: #222222;
-    --text: #000000;
-    --card-text: #ffffff;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-hover: #f1f5f9;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --card-text: #0f172a;
     --accent: #ff3333;
     --accent-foreground: #ffffff;
   }
