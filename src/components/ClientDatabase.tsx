@@ -24,10 +24,28 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
     window.open(`https://wa.me/${cleanPhone}`, '_blank');
   };
 
-  const simulateVisit = (name: string) => {
-    setDemoClient(name);
-    setShowDemoToast(true);
-    setTimeout(() => setShowDemoToast(false), 5000);
+  const simulateVisit = async (name: string) => {
+    setVisitStatus(`Processing visit for ${name}...`);
+    
+    // Trigger WhatsApp Automation via MSG91
+    try {
+      await fetch('/api/automation/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'visit_completed',
+          customer: { name, phone: '917439784129' }, // Testing with your number
+          template_id: 'appointment_confirmation'
+        })
+      });
+      setVisitStatus(`WhatsApp sent to ${name}!`);
+    } catch (e) {
+      setVisitStatus(`Visit recorded for ${name}`);
+    }
+
+    setTimeout(() => {
+      setVisitStatus('');
+    }, 3000);
   };
 
   return (

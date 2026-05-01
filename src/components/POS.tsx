@@ -32,6 +32,7 @@ export default function POS({ branchId }: { branchId: string }) {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
   const [redeemedPoints, setRedeemedPoints] = useState(0);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [visitStatus, setVisitStatus] = useState('');
 
   useEffect(() => {
     setCustomersList(customers.filter(c => c.branchId === branchId));
@@ -71,21 +72,50 @@ export default function POS({ branchId }: { branchId: string }) {
   );
 
   const finalizePayment = async () => {
-    // Trigger Automation
+    // Trigger MSG91 WhatsApp Automation
     if (selectedCustomer) {
       try {
         await fetch('/api/automation/trigger', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            event: 'visit_completed',
-            customer: selectedCustomer
+            event: 'payment_received',
+            customer: selectedCustomer,
+            template_id: '67a731d1d6fc0534c0383832', // MSG91 Template ID
+            variables: {
+              customer_name: selectedCustomer.name,
+              amount: total.toString()
+            }
           })
         });
       } catch (e) {
-        console.error('Failed to trigger automation:', e);
+        console.error('Failed to trigger WhatsApp automation:', e);
       }
     }
+
+    const simulateVisit = async (name: string) => {
+      setVisitStatus(`Processing visit for ${name}...`);
+      
+      // Trigger WhatsApp Automation via MSG91
+      try {
+        await fetch('/api/automation/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'appointment_confirmed',
+            customer: { name, phone: '917439784129' }, // Using your number for demo testing
+            template_id: 'appointment_confirmation'
+          })
+        });
+        setVisitStatus(`Successfully confirmed appointment for ${name}!`);
+      } catch (e) {
+        setVisitStatus(`Visit recorded for ${name}`);
+      }
+
+      setTimeout(() => {
+        setVisitStatus('');
+      }, 3000);
+    };
 
     setShowQRModal(false);
     setShowSuccess(true);
