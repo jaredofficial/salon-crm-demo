@@ -81,7 +81,7 @@ export default function POS({ branchId }: { branchId: string }) {
           body: JSON.stringify({
             event: 'payment_received',
             customer: selectedCustomer,
-            template_id: '67a731d1d6fc0534c0383832', // MSG91 Template ID
+            template_id: 'jared', 
             variables: {
               customer_name: selectedCustomer.name,
               amount: total.toString()

@@ -35,7 +35,7 @@ export default function ClientDatabase({ branchId }: { branchId: string }) {
         body: JSON.stringify({
           event: 'visit_completed',
           customer: { name, phone: '917439784129' }, // Testing with your number
-          template_id: 'appointment_confirmation'
+          template_id: 'jared'
         })
       });
       setVisitStatus(`WhatsApp sent to ${name}!`);
