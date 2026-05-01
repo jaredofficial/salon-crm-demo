@@ -127,7 +127,7 @@ async function startServer() {
               template: {
                 name: finalTemplateId,
                 language: { 
-                  code: "en",
+                  code: "en_US",
                   policy: "deterministic" 
                 },
                 namespace: "0c39b036_60ef_4a70_817d_744d7f2f92bf",
