@@ -100,19 +100,24 @@ async function startServer() {
 
   // API: Automation Trigger (via MSG91)
   app.post("/api/automation/trigger", async (req, res) => {
-    const { event, customer } = req.body;
+    const { event, customer, template_id, variables } = req.body;
     console.log(`Automation Triggered: ${event} for ${customer?.name}`);
 
-    // For now, we simulate the "visit_completed" workflow
-    if (event === 'visit_completed') {
-      const delay = 5000; // 5 second delay for demo
-      console.log(`Workflow matched! Executing in ${delay}ms...`);
+    if (event === 'visit_completed' || event === 'payment_received' || event === 'appointment_confirmed') {
+      const delay = 3000; // 3 second delay
       
       setTimeout(async () => {
         try {
           const { authKey, integratedNumber } = getMsg91Auth();
-          const to = customer.phone.replace(/\D/g, ''); // Ensure numeric
+          const to = customer.phone.replace(/\D/g, ''); 
           
+          // Use template_id from body or fallback to env
+          const finalTemplateId = template_id || process.env.MSG91_TEMPLATE_ID;
+
+          if (!finalTemplateId) {
+            throw new Error("No Template ID provided for automation");
+          }
+
           const payload = {
             integrated_number: integratedNumber,
             content_type: "template",
@@ -120,28 +125,31 @@ async function startServer() {
               to: to,
               type: "template",
               template: {
-                name: "visit_completed_template", // Assuming this is your approved MSG91 template name
+                name: finalTemplateId,
                 language: { code: "en", policy: "deterministic" },
                 components: [
                   {
                     type: "body",
-                    parameters: [
-                      { type: "text", text: customer.name }
-                    ]
+                    parameters: Array.isArray(variables) 
+                      ? variables.map(v => ({ type: "text", text: v }))
+                      : [{ type: "text", text: customer.name }]
                   }
                 ]
               }
             }
           };
 
-          // Real MSG91 API call
-          // await fetch("https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/", {
-          //   method: "POST",
-          //   headers: { "Content-Type": "application/json", "authkey": authKey },
-          //   body: JSON.stringify(payload)
-          // });
+          const response = await fetch("https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/", {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json", 
+              "authkey": authKey 
+            },
+            body: JSON.stringify(payload)
+          });
 
-          console.log(`[AUTOMATION] WhatsApp sent to ${customer.name} (${to}) via MSG91`);
+          const result = await response.json();
+          console.log(`[AUTOMATION] MSG91 Status for ${customer.name}:`, result);
         } catch (e: any) {
           console.error("Automation Execution Failed:", e.message);
         }
