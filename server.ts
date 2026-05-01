@@ -124,22 +124,18 @@ async function startServer() {
             payload: {
               messaging_product: "whatsapp",
               type: "template",
+              to: to,
               template: {
                 name: finalTemplateId,
                 language: { 
                   code: "en",
                   policy: "deterministic" 
                 },
-                to_and_components: [
-                  {
-                    to: [to],
-                    components: {
-                      body_1: { type: "text", value: variables?.[0] || customer.name },
-                      body_2: { type: "text", value: variables?.[1] || "500" },
-                      body_3: { type: "text", value: variables?.[2] || new Date().toLocaleDateString() }
-                    }
-                  }
-                ]
+                components: {
+                  body_1: { type: "text", value: variables?.[0] || customer.name },
+                  body_2: { type: "text", value: variables?.[1] || "500" },
+                  body_3: { type: "text", value: variables?.[2] || new Date().toLocaleDateString() }
+                }
               }
             }
           };
