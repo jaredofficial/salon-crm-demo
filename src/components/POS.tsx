@@ -82,10 +82,11 @@ export default function POS({ branchId }: { branchId: string }) {
             event: 'payment_received',
             customer: selectedCustomer,
             template_id: 'jared', 
-            variables: {
-              customer_name: selectedCustomer.name,
-              amount: total.toString()
-            }
+            variables: [
+              "Aion Salon", 
+              total.toString(), 
+              new Date().toLocaleDateString()
+            ]
           })
         });
       } catch (e) {
