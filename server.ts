@@ -127,7 +127,7 @@ async function startServer() {
               type: "template",
               template: {
                 name: finalTemplateId,
-                language: { code: "en", policy: "deterministic" },
+                language: { code: "en" },
                 components: [
                   {
                     type: "body",
