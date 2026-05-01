@@ -131,11 +131,16 @@ async function startServer() {
                   code: "en",
                   policy: "deterministic" 
                 },
-                components: {
-                  body_1: { type: "text", value: variables?.[0] || customer.name },
-                  body_2: { type: "text", value: variables?.[1] || "500" },
-                  body_3: { type: "text", value: variables?.[2] || new Date().toLocaleDateString() }
-                }
+                components: [
+                  {
+                    type: "body",
+                    parameters: [
+                      { type: "text", text: variables?.[0] || customer.name },
+                      { type: "text", text: variables?.[1] || "500" },
+                      { type: "text", text: variables?.[2] || new Date().toLocaleDateString() }
+                    ]
+                  }
+                ]
               }
             }
           };
