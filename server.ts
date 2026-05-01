@@ -122,6 +122,7 @@ async function startServer() {
             integrated_number: integratedNumber,
             content_type: "template",
             payload: {
+              messaging_product: "whatsapp",
               to: to,
               type: "template",
               template: {
