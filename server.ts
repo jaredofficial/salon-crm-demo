@@ -124,28 +124,28 @@ async function startServer() {
             payload: {
               messaging_product: "whatsapp",
               type: "template",
-              to: to,
               template: {
                 name: finalTemplateId,
                 language: { 
                   code: "en",
                   policy: "deterministic" 
                 },
-                components: [
+                namespace: "0c39b036_60ef_4a70_817d_744d7f2f92bf",
+                to_and_components: [
                   {
-                    type: "body",
-                    parameters: [
-                      { type: "text", text: variables?.[0] || customer.name },
-                      { type: "text", text: variables?.[1] || "500" },
-                      { type: "text", text: variables?.[2] || new Date().toLocaleDateString() }
-                    ]
+                    to: [to],
+                    components: {
+                      body_1: { type: "text", value: variables?.[0] || customer.name },
+                      body_2: { type: "text", value: variables?.[1] || "500" },
+                      body_3: { type: "text", value: variables?.[2] || new Date().toLocaleDateString() }
+                    }
                   }
                 ]
               }
             }
           };
 
-          const response = await fetch("https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/", {
+          const response = await fetch("https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/", {
             method: "POST",
             headers: { 
               "Content-Type": "application/json", 
